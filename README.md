@@ -6,7 +6,7 @@ mantenimiento y bitacoras de guardas.
 
 Integrantes: 
 Roberto Peña Villavicencio
-Carl de Pass Chico
+Carl De Pass Chico
 Mariel Amador Calderon
 Brandon Andrey Brenes Portuguez 
 
