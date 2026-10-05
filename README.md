@@ -43,5 +43,5 @@ https://www.figma.com/proto/Gh2PoP0qdHxjMNSQ8SJ1Ql/Incondo?node-id=1-6652&viewpo
 - No subir contraseñas, enlaces privados ni datos sensibles al repositorio.
 
 ---
-Universidad Fidélitas · SC-403 Desarrollo de Aplicaciones Web y Patrones · 2026
+Universidad Fidélitas · SC-403 Desarrollo de Aplicaciones Web y Patrones · 2026 III CUATRIMESTRE
 
