@@ -26,20 +26,20 @@ https://www.figma.com/proto/Gh2PoP0qdHxjMNSQ8SJ1Ql/Incondo?node-id=1-6652&viewpo
 ## Acuerdo de trabajo por ramas
 | Rama | Uso |
 |---|---|
-| `main` | Versión estable. Solo se actualiza al cerrar cada avance. |
-| `develop` | Integración del trabajo del equipo. |
-| `feature/HU-xx-descripcion` | Una rama por historia de usuario (ej. `feature/HU-01-login`). |
+| main | Versión estable. Solo se actualiza al cerrar cada avance. |
+| develop | Integración del trabajo del equipo. |
+| feature/HU-xx-descripcion | Una rama por historia de usuario (ej. feature/HU-01-login). |
 
 **Flujo de trabajo**
-1. Crear la rama `feature/...` a partir de `develop`.
-2. Hacer commits pequeños con mensajes claros, por ejemplo: `HU-01: formulario de inicio de sesión`.
-3. Abrir un Pull Request hacia `develop`; otro integrante lo revisa antes de unirlo.
-4. Nadie sube cambios directamente a `main`.
-5. Al terminar cada avance, se une `develop` a `main`.
+1. Crear la rama feature/ a partir de develop.
+2. Hacer commits pequeños con mensajes claros, por ejemplo: HU-01: formulario de inicio de sesión.
+3. Abrir un Pull Request hacia develop; otro integrante lo revisa antes de unirlo.
+4. Nadie sube cambios directamente a main.
+5. Al terminar cada avance, se une develop a main.
 
 ### Reglas
-- No se suben cambios directamente a `main`.
-- Antes de empezar a trabajar, actualizar la rama con los últimos cambios de `develop`.
+- No se suben cambios directamente a main.
+- Antes de empezar a trabajar, actualizar la rama con los últimos cambios de develop.
 - No subir contraseñas, enlaces privados ni datos sensibles al repositorio.
 
 ---
