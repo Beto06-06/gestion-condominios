@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('filial.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('filiales')}"></aside>
+        <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/filial/eliminar}, 'idFilial', 'confirmacion.eliminar')}"></section>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('filial.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{filial.descripcion}"></p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="tabla">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th th:text="#{filial.numero}"></th>
+                                        <th th:text="#{filial.torre}"></th>
+                                        <th th:text="#{filial.tipo}"></th>
+                                        <th th:text="#{filial.ocupacion}"></th>
+                                        <th th:text="#{accion.acciones}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="filial:${filiales}">
+                                        <td th:text="${filial.numero}"></td>
+                                        <td th:text="${filial.torre.nombre}"></td>
+                                        <td th:text="${@messageSource.getMessage('catalogo.tipo.'+filial.tipoFilial.idTipoFilial,null,filial.tipoFilial.nombre,#locale)}"></td>
+                                        <td>
+                                            <span class="badge text-bg-light" th:text="#{${filial.ocupacion}}"></span>
+                                            <small class="d-block text-danger mt-1"
+                                                   th:if="${!filial.activo}"
+                                                   th:text="#{estado.inactivo}"></small>
+                                        </td>
+                                        <td>
+                                            <div class="acciones">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:href="@{/filial/detalle/{id}(id=${filial.idFilial})}"
+                                                   th:text="#{accion.ver}"></a>
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:href="@{/filial/listado(editar=${filial.idFilial})}"
+                                                   th:text="#{accion.editar}"></a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${filial.idFilial}" th:data-bs-descripcion="${filial.numero}"
+                                                        th:text="#{accion.eliminar}"></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(filiales)}">
+                                        <td colspan="5" class="vacio" th:text="#{filial.vacio}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <aside class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="${filial.idFilial==null}?#{filial.nueva}:#{filial.editar}"></h2>
+                            <p class="ayuda" th:text="#{form.obligatorios}"></p>
+                            <form th:action="@{/filial/guardar}" method="post" th:object="${filial}">
+                                <input type="hidden" th:field="*{idFilial}">
+                                <div class="mb-3">
+                                    <label for="numero" class="form-label" th:text="#{filial.numero}+' *'"></label>
+                                    <input class="form-control"
+                                           th:field="*{numero}"
+                                           th:errorclass="is-invalid"
+                                           required
+                                           maxlength="30">
+                                    <div class="invalid-feedback" th:errors="*{numero}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="idTorre" class="form-label" th:text="#{filial.torre}+' *'"></label>
+                                    <select id="idTorre" name="idTorre" class="form-select" required>
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="opcion:${torres}"
+                                                th:value="${opcion.idTorre}"
+                                                th:text="${opcion.nombre}"
+                                                th:selected="${filial.torre!=null and filial.torre.idTorre==opcion.idTorre}"></option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="idTipoFilial" class="form-label" th:text="#{filial.tipo}+' *'"></label>
+                                    <select id="idTipoFilial" name="idTipoFilial" class="form-select" required>
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="opcion:${tipos}"
+                                                th:value="${opcion.idTipoFilial}"
+                                                th:text="${@messageSource.getMessage('catalogo.tipo.'+opcion.idTipoFilial,null,opcion.nombre,#locale)}"
+                                                th:selected="${filial.tipoFilial!=null and filial.tipoFilial.idTipoFilial==opcion.idTipoFilial}"></option>
+                                    </select>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="activo" th:field="*{activo}">
+                                    <label class="form-check-label" for="activo" th:text="#{filial.activa}"></label>
+                                </div>
+                                <p class="ayuda" th:text="#{filial.estadoAyuda}"></p>
+                                <div class="acciones">
+                                    <button class="btn btn-primary" th:text="#{accion.guardar}"></button>
+                                    <a class="btn btn-outline-primary"
+                                       th:href="@{/filial/listado}"
+                                       th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </form>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

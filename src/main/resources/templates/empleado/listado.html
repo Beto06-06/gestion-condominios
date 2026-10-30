@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('empleado.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('empleados')}"></aside>
+        <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/empleado/eliminar}, 'idEmpleado', 'confirmacion.eliminar')}"></section>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('empleado.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{empleado.descripcion}"></p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="filtros mb-3">
+                            <a class="btn btn-sm rounded-pill"
+                               th:classappend="${filtroPuesto==null}?'btn-primary':'btn-outline-primary'"
+                               th:href="@{/empleado/listado}"
+                               th:text="#{filtro.todos}"></a>
+                            <a th:each="puesto:${puestos}"
+                               class="btn btn-sm rounded-pill"
+                               th:classappend="${filtroPuesto==puesto.idPuesto}?'btn-primary':'btn-outline-primary'"
+                               th:href="@{/empleado/listado(puesto=${puesto.idPuesto})}"
+                               th:text="${@messageSource.getMessage('catalogo.puesto.'+puesto.idPuesto,null,puesto.nombre,#locale)}"></a>
+                        </div>
+                        <div class="tabla">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th th:text="#{empleado.unidad}"></th>
+                                        <th th:text="#{empleado.puestoTurno}"></th>
+                                        <th th:text="#{estado.titulo}"></th>
+                                        <th th:text="#{accion.acciones}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="empleado:${empleados}">
+                                        <td>
+                                            <strong class="fw-medium" th:text="${empleado.persona.nombreCompleto}"></strong>
+                                            <small class="d-block ayuda"
+                                                   th:text="${empleado.persona.cedula+' - '+empleado.persona.telefono}"></small>
+                                        </td>
+                                        <td>
+                                            <div class="asignacion" th:each="asignacion:${empleado.asignaciones}">
+                                                <span class="badge text-bg-info"
+                                                      th:text="${@messageSource.getMessage('catalogo.puesto.'+asignacion.puesto.idPuesto,null,asignacion.puesto.nombre,#locale)}"></span>
+                                                <small th:text="${@messageSource.getMessage('catalogo.turno.'+asignacion.turno.idTurno,null,asignacion.turno.nombre,#locale)+' '+asignacion.turno.horaInicio+'-'+asignacion.turno.horaFin}"></small>
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:href="@{/empleado/listado(editar=${asignacion.idEmpleadoPuesto},puesto=${filtroPuesto})}"
+                                                   th:text="#{accion.editar}"></a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${empleado.activo}?'text-bg-success':'text-bg-secondary'"
+                                                  th:text="${empleado.activo}?#{estado.activo}:#{estado.inactivo}"></span>
+                                        </td>
+                                        <td>
+                                            <div class="acciones">
+                                                <form method="post" th:action="@{/empleado/estado}">
+                                                    <input type="hidden" name="filtroPuesto" th:value="${filtroPuesto}">
+                                                    <input type="hidden"
+                                                           name="idEmpleado"
+                                                           th:value="${empleado.idEmpleado}">
+                                                    <button class="btn btn-sm btn-outline-primary"
+                                                            th:text="${empleado.activo}?#{accion.desactivar}:#{accion.activar}"></button>
+                                                </form>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${empleado.idEmpleado}" th:data-bs-descripcion="${empleado.persona.nombreCompleto}"
+                                                        th:text="#{accion.eliminar}"></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(empleados)}">
+                                        <td colspan="4" class="vacio" th:text="#{empleado.vacio}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <aside class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="${asignacionForm.idEmpleadoPuesto==null}?#{empleado.nuevo}:#{empleado.editar}"></h2>
+                            <p class="ayuda"
+                               th:text="${asignacionForm.idEmpleadoPuesto != null}?#{empleado.edicionAyuda}:#{empleado.identidad}"></p>
+                            <form th:action="@{/empleado/guardar}" method="post" th:object="${persona}">
+                                <input type="hidden" name="filtroPuesto" th:value="${filtroPuesto}">
+                                <input type="hidden"
+                                       name="idEmpleadoPuesto"
+                                       th:value="${asignacionForm.idEmpleadoPuesto}">
+                                <div class="mb-3">
+                                    <label class="form-label" for="nombreCompleto" th:text="#{persona.nombre}+' *'"></label>
+                                    <input class="form-control"
+                                           id="nombreCompleto"
+                                           th:field="*{nombreCompleto}"
+                                           th:errorclass="is-invalid"
+                                           th:readonly="${asignacionForm.idEmpleadoPuesto != null}"
+                                           required
+                                           maxlength="150">
+                                    <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="cedula" th:text="#{persona.cedula}+' *'"></label>
+                                    <input class="form-control"
+                                           id="cedula"
+                                           th:field="*{cedula}"
+                                           th:errorclass="is-invalid"
+                                           th:readonly="${asignacionForm.idEmpleadoPuesto != null}"
+                                           required
+                                           maxlength="30">
+                                    <div class="invalid-feedback" th:errors="*{cedula}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="idPuesto" th:text="#{empleado.puesto}+' *'"></label>
+                                    <select class="form-select" id="idPuesto" name="idPuesto" required>
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="puesto:${puestos}"
+                                                th:value="${puesto.idPuesto}"
+                                                th:text="${@messageSource.getMessage('catalogo.puesto.'+puesto.idPuesto,null,puesto.nombre,#locale)}"
+                                                th:selected="${asignacionForm.puesto!=null and asignacionForm.puesto.idPuesto==puesto.idPuesto}"></option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="telefono" th:text="#{persona.telefono}+' *'"></label>
+                                    <input type="tel"
+                                           class="form-control"
+                                           id="telefono"
+                                           th:field="*{telefono}"
+                                           th:errorclass="is-invalid"
+                                           th:readonly="${asignacionForm.idEmpleadoPuesto != null}"
+                                           required
+                                           maxlength="30">
+                                    <div class="invalid-feedback" th:errors="*{telefono}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="idTurno" th:text="#{empleado.turno}+' *'"></label>
+                                    <select class="form-select" id="idTurno" name="idTurno" required>
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="turno:${turnos}"
+                                                th:value="${turno.idTurno}"
+                                                th:text="${@messageSource.getMessage('catalogo.turno.'+turno.idTurno,null,turno.nombre,#locale)+' '+turno.horaInicio+'-'+turno.horaFin}"
+                                                th:selected="${asignacionForm.turno!=null and asignacionForm.turno.idTurno==turno.idTurno}"></option>
+                                    </select>
+                                </div>
+                                <div class="acciones">
+                                    <button class="btn btn-primary" th:text="#{accion.guardar}"></button>
+                                    <a class="btn btn-outline-primary"
+                                       th:href="@{/empleado/listado}"
+                                       th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </form>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>
