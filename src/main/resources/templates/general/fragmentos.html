@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <head th:fragment="head(titulo)">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title th:text="#{${titulo}} + ' - Incondo'">Incondo</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="/fav/favicon-32x32.png"/>
+        <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+        <link th:href="@{/webjars/font-awesome/css/all.css}" rel="stylesheet">
+        <link th:href="@{/css/estilos.css}" rel="stylesheet">
+        <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}" defer></script>
+        <script th:src="@{/js/rutinas.js}" defer></script>
+    </head>
+    <body>
+        <aside th:fragment="menu(activa)" class="sidebar">
+            <a class="marca" th:href="@{/}" aria-label="Incondo">
+                <img th:src="@{/img/logo-incondo.png}" width="150" height="48" alt="Incondo">
+                <span th:text="#{app.descripcion}"></span>
+            </a>
+            <nav th:aria-label="#{nav.principal}">
+                <a th:href="@{/persona/listado}"
+                   th:classappend="${activa=='personas'}?'active'"
+                   th:attr="aria-current=${activa=='personas'?'page':null}">
+                    <i class="fa-solid fa-users" aria-hidden="true"></i>
+                    <span th:text="#{persona.titulo}"></span>
+                </a>
+                <a th:href="@{/filial/listado}"
+                   th:classappend="${activa=='filiales'}?'active'"
+                   th:attr="aria-current=${activa=='filiales'?'page':null}">
+                    <i class="fa-regular fa-building" aria-hidden="true"></i>
+                    <span th:text="#{filial.titulo}"></span>
+                </a>
+                <a th:href="@{/empleado/listado}"
+                   th:classappend="${activa=='empleados'}?'active'"
+                   th:attr="aria-current=${activa=='empleados'?'page':null}">
+                    <i class="fa-solid fa-id-badge" aria-hidden="true"></i>
+                    <span th:text="#{empleado.titulo}"></span>
+                </a>
+            </nav>
+        </aside>
+        <header th:fragment="barra(titulo)" class="topbar">
+            <h1 th:text="#{${titulo}}"></h1>
+            <div class="idiomas" th:aria-label="#{idioma.titulo}">
+                <i class="fa-solid fa-globe" aria-hidden="true"></i>
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar})}"
+                   th:classappend="${#locale.language=='es'}?'elegido'"
+                   lang="es"
+                   aria-label="Español">
+                    ES
+                </a>
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar})}"
+                   th:classappend="${#locale.language=='en'}?'elegido'"
+                   lang="en"
+                   aria-label="English">
+                    EN
+                </a>
+            </div>
+        </header>
+        <section th:fragment="mensajes" aria-live="polite">
+            <div th:if="${todoOk}" class="alert alert-success alert-dismissible fade show" role="status">
+                <span th:text="${todoOk}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" th:aria-label="#{accion.cerrar}"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+        </section>
+        <section th:fragment="confirmarEliminar(urlEliminar, nombreId, mensajeConfirmacion)">
+            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitulo" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="${urlEliminar}" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="confirmModalTitulo" th:text="#{confirmacion.titulo}"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" th:aria-label="#{accion.cerrar}"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="modalId" th:name="${nombreId}">
+                                <input type="hidden" name="idFilial" th:if="${nombreId == 'idPersonaFilial'}" th:value="${filial.idFilial}">
+                                <input type="hidden" name="filtroPuesto" th:if="${nombreId == 'idEmpleado'}" th:value="${filtroPuesto}">
+                                <p><span th:text="#{${mensajeConfirmacion}}"></span> <strong id="modalDescripcion"></strong></p>
+                                <p class="ayuda" th:if="${nombreId == 'idEmpleado'}" th:text="#{confirmacion.empleadoAyuda}"></p>
+                                <p class="ayuda" th:if="${nombreId == 'idPersonaFilial'}" th:text="#{confirmacion.vinculoAyuda}"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{accion.cancelar}"></button>
+                                <button type="submit" class="btn btn-danger" th:text="#{accion.confirmar}"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
