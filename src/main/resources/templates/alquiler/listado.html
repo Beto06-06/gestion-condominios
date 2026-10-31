@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('alquiler.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('alquileres')}"></aside>
+        <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/alquiler/eliminar}, 'idAlquiler', 'confirmacion.alquilerEliminar')}"></section>
+        <section th:replace="~{alquiler/fragmentos :: finalizar}"></section>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('alquiler.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{alquiler.descripcion}"></p>
+                </div>
+                <div class="row g-4">
+                    <aside class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="${alquiler.idAlquiler == null}?#{alquiler.nuevo}:#{alquiler.editar}"></h2>
+                            <p class="ayuda" th:text="#{form.obligatorios}"></p>
+                            <form th:action="@{/alquiler/guardar}" method="post" th:object="${alquiler}">
+                                <input type="hidden" th:field="*{idAlquiler}">
+                                <input type="hidden" name="q" th:value="${q}">
+                                <div class="mb-3">
+                                    <label class="form-label" for="idFilial" th:text="#{filial.unidad}+' *'"></label>
+                                    <select class="form-select"
+                                            id="idFilial"
+                                            name="idFilial"
+                                            required
+                                            th:disabled="${alquiler.idAlquiler != null}">
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="opcion:${filiales}"
+                                                th:value="${opcion.idFilial}"
+                                                th:text="${opcion.numero+' - '+opcion.torre.nombre}"
+                                                th:selected="${idFilialSeleccionada != null and opcion.idFilial == idFilialSeleccionada}"></option>
+                                    </select>
+                                    <input type="hidden"
+                                           name="idFilial"
+                                           th:if="${alquiler.idAlquiler != null}"
+                                           th:value="${idFilialSeleccionada}">
+                                    <small class="ayuda"
+                                           th:if="${alquiler.idAlquiler != null}"
+                                           th:text="#{alquiler.filialFija}"></small>
+                                </div>
+                                <fieldset class="mb-3">
+                                    <legend class="form-label" th:text="#{alquiler.inquilinos}+' *'"></legend>
+                                    <div class="seleccion-inquilinos">
+                                        <div class="form-check" th:each="persona:${personas}">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="idsInquilinos"
+                                                   th:id="'inquilino-'+${persona.idPersona}"
+                                                   th:value="${persona.idPersona}"
+                                                   th:checked="${#lists.contains(idsInquilinos,persona.idPersona)}">
+                                            <label class="form-check-label"
+                                                   th:for="'inquilino-'+${persona.idPersona}"
+                                                   th:text="${persona.nombreCompleto+' - '+persona.cedula}"></label>
+                                        </div>
+                                    </div>
+                                    <small class="ayuda" th:text="#{alquiler.inquilinosAyuda}"></small>
+                                </fieldset>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-sm-6 col-xl-12 col-xxl-6">
+                                        <label class="form-label" for="fechaInicio" th:text="#{alquiler.inicio}+' *'"></label>
+                                        <input class="form-control"
+                                               type="date"
+                                               id="fechaInicio"
+                                               name="fechaInicio"
+                                               th:value="${alquiler.fechaInicio}"
+                                               th:classappend="${#fields.hasErrors('fechaInicio')}?'is-invalid'"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{fechaInicio}"></div>
+                                    </div>
+                                    <div class="col-sm-6 col-xl-12 col-xxl-6">
+                                        <label class="form-label" for="fechaFin" th:text="#{alquiler.fin}+' *'"></label>
+                                        <input class="form-control"
+                                               type="date"
+                                               id="fechaFin"
+                                               name="fechaFin"
+                                               th:value="${alquiler.fechaFin}"
+                                               th:classappend="${#fields.hasErrors('fechaFin')}?'is-invalid'"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{fechaFin}"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="montoMensual" th:text="#{alquiler.monto}+' *'"></label>
+                                    <input class="form-control"
+                                           type="number"
+                                           th:field="*{montoMensual}"
+                                           th:errorclass="is-invalid"
+                                           min="0.01"
+                                           max="9999999999.99"
+                                           step="0.01"
+                                           required>
+                                    <div class="invalid-feedback" th:errors="*{montoMensual}"></div>
+                                </div>
+                                <div class="acciones">
+                                    <button class="btn btn-primary" th:text="#{accion.guardar}"></button>
+                                    <a class="btn btn-outline-primary"
+                                       th:href="@{/alquiler/listado}"
+                                       th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </form>
+                        </section>
+                    </aside>
+                    <div class="col-xl-8">
+                        <form class="buscador mb-3" th:action="@{/alquiler/listado}" method="get">
+                            <label class="visually-hidden" for="buscarAlquiler" th:text="#{alquiler.buscar}"></label>
+                            <input class="form-control"
+                                   id="buscarAlquiler"
+                                   type="search"
+                                   name="q"
+                                   th:value="${q}"
+                                   th:placeholder="#{alquiler.buscar}">
+                            <button class="btn btn-outline-primary" th:text="#{accion.buscar}"></button>
+                        </form>
+                        <div class="tabla tabla-alquiler">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th th:text="#{filial.unidad}"></th>
+                                        <th th:text="#{alquiler.inquilinos}"></th>
+                                        <th th:text="#{alquiler.periodo}"></th>
+                                        <th th:text="#{alquiler.monto}"></th>
+                                        <th th:text="#{estado.titulo}"></th>
+                                        <th th:text="#{accion.acciones}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="contrato:${alquileres}">
+                                        <td>
+                                            <a th:href="@{/filial/detalle/{id}(id=${contrato.filial.idFilial})}"
+                                               th:text="${contrato.filial.numero}"></a>
+                                        </td>
+                                        <td>
+                                            <span class="d-block"
+                                                  th:each="persona:${contrato.inquilinos}"
+                                                  th:text="${persona.nombreCompleto}"></span>
+                                        </td>
+                                        <td>
+                                            <span class="d-block"
+                                                  th:text="${#temporals.format(contrato.fechaInicio, 'dd/MM/yyyy')}+' - '+${#temporals.format(contrato.fechaFin, 'dd/MM/yyyy')}"></span>
+                                            <small th:if="${contrato.fechaSalida != null}"
+                                                   th:text="#{alquiler.salida}+': '+${#temporals.format(contrato.fechaSalida, 'dd/MM/yyyy')}"></small>
+                                        </td>
+                                        <td th:text="${'₡ '+#numbers.formatDecimal(contrato.montoMensual, 1, 'COMMA', 2, 'POINT')}"></td>
+                                        <td>
+                                            <span class="badge text-bg-light" th:text="#{${contrato.estado}}"></span>
+                                        </td>
+                                        <td>
+                                            <div class="acciones">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:if="${contrato.editable}"
+                                                   th:href="@{/alquiler/listado(editar=${contrato.idAlquiler},q=${q})}"
+                                                   th:text="#{accion.editar}"></a>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        th:if="${contrato.finalizable}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#finalizarAlquilerModal"
+                                                        th:data-bs-id="${contrato.idAlquiler}"
+                                                        th:data-bs-descripcion="${contrato.filial.numero}"
+                                                        th:data-bs-inicio="${contrato.fechaInicio}"
+                                                        th:text="#{alquiler.finalizar}"></button>
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        th:if="${contrato.eliminable}"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${contrato.idAlquiler}"
+                                                        th:data-bs-descripcion="${contrato.filial.numero+' - '+contrato.fechaInicio}"
+                                                        th:text="#{accion.eliminar}"></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(alquileres)}">
+                                        <td colspan="6" class="vacio" th:text="#{alquiler.vacio}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

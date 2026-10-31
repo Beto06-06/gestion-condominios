@@ -5,6 +5,7 @@
         <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
         <aside th:replace="~{general/fragmentos :: menu('filiales')}"></aside>
         <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/filial/desasociar}, 'idPersonaFilial', 'confirmacion.quitar')}"></section>
+        <section th:replace="~{alquiler/fragmentos :: finalizar}"></section>
         <main class="main">
             <header th:replace="~{general/fragmentos :: barra('filial.detalle')}"></header>
             <div class="contenido" id="contenido">
@@ -56,8 +57,10 @@
                                         <a class="btn btn-sm btn-outline-primary"
                                            th:href="@{/filial/detalle/{id}(id=${filial.idFilial},editar=${relacion.idPersonaFilial})}"
                                            th:text="#{accion.editar}"></a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#confirmModal"
                                                 th:data-bs-id="${relacion.idPersonaFilial}"
                                                 th:data-bs-descripcion="${relacion.persona.nombreCompleto}"
                                                 th:text="#{relacion.quitar}"></button>
@@ -106,6 +109,51 @@
                                        th:text="#{accion.cancelar}"></a>
                                 </div>
                             </form>
+                        </section>
+                    </div>
+                </div>
+                <div class="row g-4 mt-1">
+                    <div class="col-xl-8">
+                        <section class="panel">
+                            <h2 th:text="#{alquiler.historial}"></h2>
+                            <p class="ayuda" th:text="#{alquiler.historialAyuda}"></p>
+                            <div class="vinculo" th:each="contrato:${historialAlquileres}">
+                                <div class="d-flex justify-content-between flex-wrap gap-2">
+                                    <div>
+                                        <strong class="d-block"
+                                                th:each="persona:${contrato.inquilinos}"
+                                                th:text="${persona.nombreCompleto}"></strong>
+                                        <span th:text="${#temporals.format(contrato.fechaInicio, 'dd/MM/yyyy')}+' - '+${#temporals.format(contrato.fechaFin, 'dd/MM/yyyy')}"></span>
+                                        <span class="badge text-bg-light" th:text="#{${contrato.estado}}"></span>
+                                        <span class="d-block" th:text="${'₡ '+#numbers.formatDecimal(contrato.montoMensual, 1, 'COMMA', 2, 'POINT')}"></span>
+                                        <small th:if="${contrato.fechaSalida != null}"
+                                               th:text="#{alquiler.salida}+': '+${#temporals.format(contrato.fechaSalida, 'dd/MM/yyyy')}"></small>
+                                    </div>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger align-self-start"
+                                            th:if="${contrato.finalizable}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#finalizarAlquilerModal"
+                                            data-bs-retorno="filial"
+                                            th:data-bs-id="${contrato.idAlquiler}"
+                                            th:data-bs-descripcion="${contrato.filial.numero}"
+                                            th:data-bs-inicio="${contrato.fechaInicio}"
+                                            th:text="#{alquiler.finalizar}"></button>
+                                </div>
+                            </div>
+                            <p class="ayuda" th:if="${#lists.isEmpty(historialAlquileres)}" th:text="#{alquiler.vacio}"></p>
+                        </section>
+                    </div>
+                    <div class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="#{parqueo.asignados}"></h2>
+                            <a class="d-block mt-2"
+                               th:each="asignacion:${parqueosFilial}"
+                               th:href="@{/parqueo/listado(editar=${asignacion.parqueo.idParqueo})}"
+                               th:text="${asignacion.parqueo.codigo}"></a>
+                            <p class="ayuda"
+                               th:if="${#lists.isEmpty(parqueosFilial)}"
+                               th:text="#{parqueo.sinAsignados}"></p>
                         </section>
                     </div>
                 </div>
