@@ -424,3 +424,47 @@ p.ayuda{
         grid-template-columns:42% 58%
     }
 }
+
+.seleccion-inquilinos {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--in-border);
+    border-radius: 6px;
+    padding: 12px;
+}
+.parqueo-tarjeta {
+    display: flex;
+    flex-direction: column;
+    min-height: 90px;
+    padding: 10px;
+    border: 1px solid var(--in-border);
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+}
+.parqueo-tarjeta.disponible {
+    background: #cfe8dd;
+    border-color: #158354;
+}
+.parqueo-tarjeta.asignado {
+    background: #fff0d2;
+    border-color: #9a8459;
+}
+.parqueo-tarjeta.ocupado {
+    background: #fff5cc;
+    border-color: #c99a00;
+}
+.parqueo-tarjeta.inactivo {
+    background: #e4e6e8;
+}
+.parqueo-tarjeta[aria-current="page"] {
+    outline: 3px solid #18222d;
+    outline-offset: 2px;
+}
+
+.tabla-alquiler .table {
+    min-width: 840px;
+}
+.tabla-alquiler td:nth-child(3) {
+    white-space: nowrap;
+}

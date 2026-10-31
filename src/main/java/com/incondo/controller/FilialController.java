@@ -22,6 +22,8 @@ public class FilialController {
     private final PersonaService personaService;
     private final RelacionService relacionService;
     private final MessageSource messageSource;
+    private final AlquilerService alquilerService;
+    private final ParqueoService parqueoService;
 
     private void cargarDatosListado(Model model) {
         model.addAttribute("filiales", filialService.listar());
@@ -63,6 +65,9 @@ public class FilialController {
         model.addAttribute("relaciones", relacionService.porFilial(idFilial));
         model.addAttribute("personas", personaService.listar(""));
         model.addAttribute("tiposRelacion", relacionService.getTiposRelacion());
+        model.addAttribute("historialAlquileres", alquilerService.porFilial(idFilial));
+        model.addAttribute("parqueosFilial", parqueoService.porFilial(idFilial));
+        model.addAttribute("hoy", java.time.LocalDate.now());
         if (editar != null) {
             model.addAttribute("relacionForm", relacionService.getRelacion(editar, idFilial));
         } else {
@@ -86,6 +91,9 @@ public class FilialController {
         model.addAttribute("relaciones", relacionService.porFilial(idFilial));
         model.addAttribute("personas", personaService.listar(""));
         model.addAttribute("tiposRelacion", relacionService.getTiposRelacion());
+        model.addAttribute("historialAlquileres", alquilerService.porFilial(idFilial));
+        model.addAttribute("parqueosFilial", parqueoService.porFilial(idFilial));
+        model.addAttribute("hoy", java.time.LocalDate.now());
         model.addAttribute("editar", idPersonaFilial);
         model.addAttribute("rutaIdioma", "/filial/detalle/" + idFilial);
         var relacion = new PersonaFilial();

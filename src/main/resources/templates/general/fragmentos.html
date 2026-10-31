@@ -30,11 +30,23 @@
                     <i class="fa-regular fa-building" aria-hidden="true"></i>
                     <span th:text="#{filial.titulo}"></span>
                 </a>
+                <a th:href="@{/alquiler/listado}"
+                   th:classappend="${activa=='alquileres'}?'active'"
+                   th:attr="aria-current=${activa=='alquileres'?'page':null}">
+                    <i class="fa-solid fa-key" aria-hidden="true"></i>
+                    <span th:text="#{alquiler.titulo}"></span>
+                </a>
                 <a th:href="@{/empleado/listado}"
                    th:classappend="${activa=='empleados'}?'active'"
                    th:attr="aria-current=${activa=='empleados'?'page':null}">
                     <i class="fa-solid fa-id-badge" aria-hidden="true"></i>
                     <span th:text="#{empleado.titulo}"></span>
+                </a>
+                <a th:href="@{/parqueo/listado}"
+                   th:classappend="${activa=='parqueos'}?'active'"
+                   th:attr="aria-current=${activa=='parqueos'?'page':null}">
+                    <i class="fa-solid fa-square-parking" aria-hidden="true"></i>
+                    <span th:text="#{parqueo.titulo}"></span>
                 </a>
             </nav>
         </aside>
@@ -42,13 +54,13 @@
             <h1 th:text="#{${titulo}}"></h1>
             <div class="idiomas" th:aria-label="#{idioma.titulo}">
                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar})}"
                    th:classappend="${#locale.language=='es'}?'elegido'"
                    lang="es"
                    aria-label="Español">
                     ES
                 </a>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar})}"
                    th:classappend="${#locale.language=='en'}?'elegido'"
                    lang="en"
                    aria-label="English">
@@ -64,24 +76,47 @@
             <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
         </section>
         <section th:fragment="confirmarEliminar(urlEliminar, nombreId, mensajeConfirmacion)">
-            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitulo" aria-hidden="true">
+            <div class="modal fade"
+                 id="confirmModal"
+                 tabindex="-1"
+                 aria-labelledby="confirmModalTitulo"
+                 aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <form th:action="${urlEliminar}" method="post">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="confirmModalTitulo" th:text="#{confirmacion.titulo}"></h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" th:aria-label="#{accion.cerrar}"></button>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        th:aria-label="#{accion.cerrar}"></button>
                             </div>
                             <div class="modal-body">
                                 <input type="hidden" id="modalId" th:name="${nombreId}">
-                                <input type="hidden" name="idFilial" th:if="${nombreId == 'idPersonaFilial'}" th:value="${filial.idFilial}">
-                                <input type="hidden" name="filtroPuesto" th:if="${nombreId == 'idEmpleado'}" th:value="${filtroPuesto}">
-                                <p><span th:text="#{${mensajeConfirmacion}}"></span> <strong id="modalDescripcion"></strong></p>
-                                <p class="ayuda" th:if="${nombreId == 'idEmpleado'}" th:text="#{confirmacion.empleadoAyuda}"></p>
-                                <p class="ayuda" th:if="${nombreId == 'idPersonaFilial'}" th:text="#{confirmacion.vinculoAyuda}"></p>
+                                <input type="hidden"
+                                       name="idFilial"
+                                       th:if="${nombreId == 'idPersonaFilial'}"
+                                       th:value="${filial.idFilial}">
+                                <input type="hidden"
+                                       name="filtroPuesto"
+                                       th:if="${nombreId == 'idEmpleado'}"
+                                       th:value="${filtroPuesto}">
+                                <p>
+                                    <span th:text="#{${mensajeConfirmacion}}"></span>
+                                    <strong id="modalDescripcion"></strong>
+                                </p>
+                                <p class="ayuda"
+                                   th:if="${nombreId == 'idEmpleado'}"
+                                   th:text="#{confirmacion.empleadoAyuda}"></p>
+                                <p class="ayuda"
+                                   th:if="${nombreId == 'idPersonaFilial'}"
+                                   th:text="#{confirmacion.vinculoAyuda}"></p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{accion.cancelar}"></button>
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                        th:text="#{accion.cancelar}"></button>
                                 <button type="submit" class="btn btn-danger" th:text="#{accion.confirmar}"></button>
                             </div>
                         </form>

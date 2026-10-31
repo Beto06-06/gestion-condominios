@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
 public interface AlquilerInquilinoRepository extends JpaRepository<AlquilerInquilino, Integer> {
 
     java.util.List<AlquilerInquilino> findByPersonaIdPersona(Integer idPersona);
+
+    java.util.List<AlquilerInquilino> findByAlquilerIdAlquilerOrderByPersonaNombreCompletoAsc(Integer idAlquiler);
+
 }
