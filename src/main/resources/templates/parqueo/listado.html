@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('parqueo.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('parqueos')}"></aside>
+        <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/parqueo/eliminar}, 'idParqueo', 'confirmacion.eliminar')}"></section>
+        <section th:replace="~{parqueo/fragmentos :: asignar}"></section>
+        <section th:replace="~{parqueo/fragmentos :: liberar}"></section>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('parqueo.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{parqueo.descripcion}"></p>
+                </div>
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <p class="ayuda" th:text="#{parqueo.seleccionar}"></p>
+                        <section class="panel mb-3" th:each="tipoParqueo:${tiposParqueo}">
+                            <h2 th:text="${@messageSource.getMessage('catalogo.parqueo.'+tipoParqueo.idTipoParqueo,null,tipoParqueo.nombre,#locale)}"></h2>
+                            <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 g-2 mt-2">
+                                <div class="col"
+                                     th:each="espacio:${parqueos}"
+                                     th:if="${espacio.tipoParqueo.idTipoParqueo == tipoParqueo.idTipoParqueo}">
+                                    <a class="parqueo-tarjeta"
+                                       th:href="@{/parqueo/listado(editar=${espacio.idParqueo})}"
+                                       th:classappend="${espacio.estado == 'parqueo.ocupado' ? 'ocupado' : espacio.estado == 'parqueo.asignado' ? 'asignado' : espacio.estado == 'parqueo.disponible' ? 'disponible' : 'inactivo'}"
+                                       th:attr="aria-current=${editar == espacio.idParqueo ? 'page' : null}">
+                                        <strong th:text="${espacio.codigo}"></strong>
+                                        <span th:text="#{${espacio.estado}}"></span>
+                                        <small th:if="${espacio.filialAsignada != null}"
+                                               th:text="${espacio.filialAsignada.numero}"></small>
+                                    </a>
+                                </div>
+                            </div>
+                        </section>
+                        <p class="ayuda" th:if="${#lists.isEmpty(parqueos)}" th:text="#{parqueo.vacio}"></p>
+                    </div>
+                    <aside class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="${parqueo.idParqueo == null}?#{parqueo.nuevo}:#{parqueo.editar}"></h2>
+                            <p class="ayuda" th:text="#{parqueo.codigoAyuda}"></p>
+                            <form th:action="@{/parqueo/guardar}" method="post" th:object="${parqueo}">
+                                <input type="hidden" th:field="*{idParqueo}">
+                                <div class="mb-3">
+                                    <label class="form-label" for="codigo" th:text="#{parqueo.codigo}+' *'"></label>
+                                    <input class="form-control"
+                                           th:field="*{codigo}"
+                                           th:errorclass="is-invalid"
+                                           required
+                                           maxlength="30">
+                                    <div class="invalid-feedback" th:errors="*{codigo}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="idTipoParqueo" th:text="#{filial.tipo}+' *'"></label>
+                                    <select class="form-select"
+                                            id="idTipoParqueo"
+                                            name="idTipoParqueo"
+                                            required
+                                            th:disabled="${parqueo.bloqueado}">
+                                        <option value="" th:text="#{form.seleccione}"></option>
+                                        <option th:each="tipoParqueo:${tiposParqueo}"
+                                                th:value="${tipoParqueo.idTipoParqueo}"
+                                                th:text="${@messageSource.getMessage('catalogo.parqueo.'+tipoParqueo.idTipoParqueo,null,tipoParqueo.nombre,#locale)}"
+                                                th:selected="${parqueo.tipoParqueo != null and parqueo.tipoParqueo.idTipoParqueo == tipoParqueo.idTipoParqueo}"></option>
+                                    </select>
+                                    <input type="hidden"
+                                           name="idTipoParqueo"
+                                           th:if="${parqueo.bloqueado}"
+                                           th:value="${parqueo.tipoParqueo.idTipoParqueo}">
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           id="activo"
+                                           th:field="*{activo}"
+                                           th:disabled="${parqueo.bloqueado}">
+                                    <label class="form-check-label" for="activo" th:text="#{parqueo.activo}"></label>
+                                    <input type="hidden"
+                                           name="activo"
+                                           th:if="${parqueo.bloqueado}"
+                                           th:value="${parqueo.activo}">
+                                </div>
+                                <p class="ayuda" th:if="${parqueo.bloqueado}" th:text="#{parqueo.bloqueadoAyuda}"></p>
+                                <div class="acciones">
+                                    <button class="btn btn-primary" th:text="#{accion.guardar}"></button>
+                                    <a class="btn btn-outline-primary"
+                                       th:href="@{/parqueo/listado}"
+                                       th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </form>
+                            <div class="mt-4" th:if="${parqueoActual != null}">
+                                <h3 th:text="#{parqueo.accionesGuardadas}+': '+${parqueoActual.codigo}"></h3>
+                                <div class="acciones">
+                                    <button type="button"
+                                            class="btn btn-outline-primary"
+                                            th:if="${parqueoActual.tipoParqueo != null and parqueoActual.tipoParqueo.nombre == 'Residente' and parqueoActual.activo}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#asignarParqueoModal"
+                                            th:data-bs-id="${parqueoActual.idParqueo}"
+                                            th:data-bs-descripcion="${parqueoActual.codigo}"
+                                            th:data-bs-filial="${parqueoActual.filialAsignada != null ? parqueoActual.filialAsignada.idFilial : ''}"
+                                            th:text="#{parqueo.asignar}"></button>
+                                    <button type="button"
+                                            class="btn btn-outline-danger"
+                                            th:if="${parqueoActual.filialAsignada != null}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#liberarParqueoModal"
+                                            th:data-bs-id="${parqueoActual.idParqueo}"
+                                            th:data-bs-descripcion="${parqueoActual.codigo+' - '+parqueoActual.filialAsignada.numero}"
+                                            th:text="#{parqueo.liberar}"></button>
+                                    <button type="button"
+                                            class="btn btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmModal"
+                                            th:data-bs-id="${parqueoActual.idParqueo}"
+                                            th:data-bs-descripcion="${parqueoActual.codigo}"
+                                            th:text="#{accion.eliminar}"></button>
+                                </div>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

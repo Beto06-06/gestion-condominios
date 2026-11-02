@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <section th:fragment="finalizar">
+            <div class="modal fade"
+                 id="finalizarAlquilerModal"
+                 tabindex="-1"
+                 aria-labelledby="finalizarTitulo"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{/alquiler/finalizar}" method="post">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="finalizarTitulo" th:text="#{alquiler.finalizar}"></h2>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        th:aria-label="#{accion.cerrar}"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden"
+                                       name="idAlquiler"
+                                       id="finalizarId"
+                                       th:value="${alquilerFinalizar != null ? alquilerFinalizar.idAlquiler : null}">
+                                <input type="hidden" name="q" th:value="${q}">
+                                <input type="hidden" name="retorno" id="finalizarRetorno" th:value="${retorno}">
+                                <p>
+                                    <strong id="finalizarDescripcion"
+                                            th:text="${alquilerFinalizar != null ? alquilerFinalizar.filial.numero : ''}"></strong>
+                                </p>
+                                <p class="ayuda" th:text="#{alquiler.finalizarAyuda}"></p>
+                                <label class="form-label" for="fechaSalida" th:text="#{alquiler.salida}+' *'"></label>
+                                <input class="form-control"
+                                       type="date"
+                                       name="fechaSalida"
+                                       id="fechaSalida"
+                                       required
+                                       th:value="${fechaSalida != null ? fechaSalida : hoy}"
+                                       th:max="${hoy}"
+                                       th:data-hoy="${hoy}">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                        th:text="#{accion.cancelar}"></button>
+                                <button type="submit" class="btn btn-danger" th:text="#{alquiler.finalizar}"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <button type="button"
+                    id="reabrirFinalizacion"
+                    class="d-none"
+                    th:if="${mostrarFinalizacion == true}"
+                    data-bs-toggle="modal"
+                    data-bs-target="#finalizarAlquilerModal"
+                    th:data-bs-id="${alquilerFinalizar.idAlquiler}"
+                    th:data-bs-descripcion="${alquilerFinalizar.filial.numero}"
+                    th:data-bs-inicio="${alquilerFinalizar.fechaInicio}"
+                    th:data-bs-retorno="${retorno}"></button>
+        </section>
+    </body>
+</html>

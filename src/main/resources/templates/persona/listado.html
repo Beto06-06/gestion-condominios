@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('persona.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('personas')}"></aside>
+        <section th:replace="~{general/fragmentos :: confirmarEliminar(@{/persona/eliminar}, 'idPersona', 'confirmacion.eliminar')}"></section>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('persona.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{persona.descripcion}"></p>
+                    <a class="btn btn-primary" th:href="@{/persona/nuevo}">
+                        <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        <span th:text="#{persona.nueva}"></span>
+                    </a>
+                </div>
+                <div class="row g-4">
+                    <div th:class="${seleccionada!=null}?'col-xl-7':'col-12'">
+                        <form method="get" th:action="@{/persona/listado}" class="buscador mb-3">
+                            <label for="buscarPersona" class="visually-hidden" th:text="#{persona.buscar}"></label>
+                            <input id="buscarPersona"
+                                   name="q"
+                                   type="search"
+                                   class="form-control"
+                                   th:value="${q}"
+                                   th:placeholder="#{persona.buscar}">
+                            <button class="btn btn-outline-primary" th:text="#{accion.buscar}"></button>
+                        </form>
+                        <div class="tabla">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th th:text="#{persona.cedula}"></th>
+                                        <th th:text="#{persona.nombre}"></th>
+                                        <th th:text="#{persona.telefono}"></th>
+                                        <th th:text="#{accion.acciones}"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="persona:${personas}"
+                                        th:classappend="${seleccionada!=null and seleccionada.idPersona==persona.idPersona}?'seleccionada'">
+                                        <td th:text="${persona.cedula}"></td>
+                                        <td th:text="${persona.nombreCompleto}"></td>
+                                        <td th:text="${persona.telefono}"></td>
+                                        <td>
+                                            <div class="acciones">
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:href="@{/persona/listado(ver=${persona.idPersona},q=${q})}">
+                                                    <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                                                    <span th:text="#{accion.ver}"></span>
+                                                </a>
+                                                <a class="btn btn-sm btn-outline-primary"
+                                                   th:href="@{/persona/modificar/{id}(id=${persona.idPersona})}">
+                                                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                                                    <span th:text="#{accion.editar}"></span>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${persona.idPersona}" th:data-bs-descripcion="${persona.nombreCompleto}"
+                                                        th:text="#{accion.eliminar}"></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(personas)}">
+                                        <td colspan="4" class="vacio" th:text="#{persona.vacio}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <aside class="col-xl-5" th:if="${seleccionada!=null}">
+                        <section class="panel">
+                            <div class="d-flex justify-content-between gap-3">
+                                <h2 th:text="${seleccionada.nombreCompleto}"></h2>
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/persona/modificar/{id}(id=${seleccionada.idPersona})}"
+                                   th:text="#{accion.editar}"></a>
+                            </div>
+                            <p class="ayuda" th:text="#{persona.detalle}"></p>
+                            <dl class="detalle">
+                                <dt th:text="#{persona.cedula}"></dt>
+                                <dd th:text="${seleccionada.cedula}"></dd>
+                                <dt th:text="#{persona.telefono}"></dt>
+                                <dd th:text="${seleccionada.telefono}"></dd>
+                                <dt th:text="#{persona.correo}"></dt>
+                                <dd th:text="${seleccionada.correo}"></dd>
+                            </dl>
+                            <hr>
+                            <h3 th:text="#{persona.filiales}"></h3>
+                            <div class="vinculo" th:each="relacion:${relaciones}">
+                                <a th:href="@{/filial/detalle/{id}(id=${relacion.filial.idFilial})}"
+                                   th:text="${relacion.filial.numero+' - '+relacion.filial.torre.nombre}"></a>
+                                <div class="mt-2">
+                                    <span class="badge text-bg-warning"
+                                          th:text="${@messageSource.getMessage('catalogo.relacion.'+relacion.tipoRelacion.idTipoRelacion,null,relacion.tipoRelacion.nombre,#locale)}"></span>
+                                    <span class="badge"
+                                          th:classappend="${relacion.viveEnFilial}?'text-bg-success':'text-bg-secondary'"
+                                          th:text="${relacion.viveEnFilial}?#{relacion.vive}:#{relacion.noVive}"></span>
+                                </div>
+                            </div>
+                            <div class="vinculo" th:each="inquilino:${alquileres}">
+                                <a th:href="@{/filial/detalle/{id}(id=${inquilino.alquiler.filial.idFilial})}"
+                                   th:text="${inquilino.alquiler.filial.numero+' - '+inquilino.alquiler.filial.torre.nombre}"></a>
+                                <div class="mt-2">
+                                    <span class="badge text-bg-info" th:text="#{relacion.inquilino}"></span>
+                                </div>
+                            </div>
+                            <p th:if="${#lists.isEmpty(relaciones) and #lists.isEmpty(alquileres)}"
+                               class="ayuda"
+                               th:text="#{persona.sinFiliales}"></p>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <section th:fragment="asignar">
+            <div class="modal fade"
+                 id="asignarParqueoModal"
+                 tabindex="-1"
+                 aria-labelledby="asignarParqueoTitulo"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{/parqueo/asignar}" method="post">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="asignarParqueoTitulo" th:text="#{parqueo.asignar}"></h2>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        th:aria-label="#{accion.cerrar}"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden"
+                                       name="idParqueo"
+                                       id="asignarParqueoId"
+                                       th:value="${idParqueoAsignacion}">
+                                <p>
+                                    <strong id="asignarParqueoDescripcion"></strong>
+                                </p>
+                                <p class="ayuda" th:text="#{parqueo.asignarAyuda}"></p>
+                                <label class="form-label" for="asignarFilial" th:text="#{filial.unidad}+' *'"></label>
+                                <select class="form-select" id="asignarFilial" name="idFilial" required>
+                                    <option value="" th:text="#{form.seleccione}"></option>
+                                    <option th:each="opcion:${filiales}"
+                                            th:value="${opcion.idFilial}"
+                                            th:text="${opcion.numero+' - '+opcion.torre.nombre}"
+                                            th:selected="${idFilialAsignacion != null and opcion.idFilial == idFilialAsignacion}"></option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                        th:text="#{accion.cancelar}"></button>
+                                <button type="submit" class="btn btn-primary" th:text="#{accion.confirmar}"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section th:fragment="liberar">
+            <div class="modal fade"
+                 id="liberarParqueoModal"
+                 tabindex="-1"
+                 aria-labelledby="liberarParqueoTitulo"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form th:action="@{/parqueo/liberar}" method="post">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="liberarParqueoTitulo" th:text="#{parqueo.liberar}"></h2>
+                                <button type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        th:aria-label="#{accion.cerrar}"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="idParqueo" id="liberarParqueoId">
+                                <p>
+                                    <strong id="liberarParqueoDescripcion"></strong>
+                                </p>
+                                <p th:text="#{parqueo.liberarAyuda}"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                        th:text="#{accion.cancelar}"></button>
+                                <button type="submit" class="btn btn-danger" th:text="#{accion.confirmar}"></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

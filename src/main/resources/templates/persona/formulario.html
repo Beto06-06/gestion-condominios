@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('persona.formulario')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('personas')}"></aside>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('persona.formulario')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <p class="breadcrumb">
+                    <a th:href="@{/persona/listado}" th:text="#{persona.titulo}"></a>
+                    <span>/</span>
+                    <span th:text="${persona.idPersona==null}?#{persona.nueva}:#{accion.editar}"></span>
+                </p>
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <section class="panel">
+                            <h2 th:text="#{persona.datos}"></h2>
+                            <p class="ayuda" th:text="#{form.obligatorios}"></p>
+                            <form method="post" th:action="@{/persona/guardar}" th:object="${persona}">
+                                <input type="hidden" th:field="*{idPersona}">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="cedula" class="form-label" th:text="#{persona.cedula}+' *'"></label>
+                                        <input class="form-control"
+                                               th:errorclass="is-invalid"
+                                               th:field="*{cedula}"
+                                               required
+                                               maxlength="30">
+                                        <div class="invalid-feedback" th:errors="*{cedula}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="nombreCompleto" class="form-label" th:text="#{persona.nombre}+' *'"></label>
+                                        <input class="form-control"
+                                               th:errorclass="is-invalid"
+                                               th:field="*{nombreCompleto}"
+                                               required
+                                               maxlength="150">
+                                        <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="telefono" class="form-label" th:text="#{persona.telefono}+' *'"></label>
+                                        <input type="tel"
+                                               class="form-control"
+                                               th:errorclass="is-invalid"
+                                               th:field="*{telefono}"
+                                               required
+                                               maxlength="30">
+                                        <div class="invalid-feedback" th:errors="*{telefono}"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="correo" class="form-label" th:text="#{persona.correo}+' *'"></label>
+                                        <input type="email"
+                                               class="form-control"
+                                               th:errorclass="is-invalid"
+                                               th:field="*{correo}"
+                                               required
+                                               maxlength="150">
+                                        <div class="invalid-feedback" th:errors="*{correo}"></div>
+                                    </div>
+                                </div>
+                                <div class="acciones mt-4">
+                                    <button class="btn btn-primary">
+                                        <i class="fa-regular fa-circle-check" aria-hidden="true"></i>
+                                        <span th:text="#{persona.guardar}"></span>
+                                    </button>
+                                    <a class="btn btn-outline-primary"
+                                       th:href="@{/persona/listado}"
+                                       th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </form>
+                        </section>
+                    </div>
+                    <aside class="col-xl-4">
+                        <section class="panel">
+                            <h2 th:text="#{persona.reglas}"></h2>
+                            <ul class="reglas">
+                                <li th:text="#{persona.regla1}"></li>
+                                <li th:text="#{persona.regla2}"></li>
+                                <li th:text="#{persona.regla3}"></li>
+                            </ul>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>

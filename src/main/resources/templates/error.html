@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('error.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('')}"></aside>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('error.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <section class="panel error-panel">
+                    <h2 th:text="#{error.titulo}"></h2>
+                    <p th:text="#{error.general}"></p>
+                    <a class="btn btn-primary" th:href="@{/}" th:text="#{accion.volver}"></a>
+                </section>
+            </div>
+        </main>
+    </body>
+</html>
