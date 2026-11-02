@@ -139,6 +139,26 @@ public class EmpleadoService {
         return turnoRepository.findById(idTurno);
     }
 
+    @Transactional(readOnly = true)
+    public List<EmpleadoPuesto> getGuardas() {
+        return empleadoPuestoRepository.findByEmpleadoActivoTrueAndPuestoNombreOrderByEmpleadoPersonaNombreCompletoAsc("Seguridad");
+    }
+
+    @Transactional(readOnly = true)
+    public EmpleadoPuesto getGuarda(Integer idEmpleadoPuesto) {
+        if (idEmpleadoPuesto == null) {
+            throw new IllegalArgumentException("error.visitaGuarda");
+        }
+        var asignacion = getAsignacion(idEmpleadoPuesto);
+        if (!asignacion.getEmpleado().isActivo()) {
+            throw new IllegalArgumentException("error.visitaGuarda");
+        }
+        if (!"Seguridad".equals(asignacion.getPuesto().getNombre())) {
+            throw new IllegalArgumentException("error.visitaGuarda");
+        }
+        return asignacion;
+    }
+
     @Transactional
     public void delete(Integer idEmpleado) {
         if (!empleadoRepository.existsById(idEmpleado)) {

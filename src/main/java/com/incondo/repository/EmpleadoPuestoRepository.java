@@ -12,4 +12,6 @@ public interface EmpleadoPuestoRepository extends JpaRepository<EmpleadoPuesto, 
 
     List<EmpleadoPuesto> findByEmpleadoIdEmpleado(Integer idEmpleado);
 
+    List<EmpleadoPuesto> findByEmpleadoActivoTrueAndPuestoNombreOrderByEmpleadoPersonaNombreCompletoAsc(String nombrePuesto);
+
 }

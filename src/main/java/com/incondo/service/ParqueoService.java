@@ -171,6 +171,36 @@ public class ParqueoService {
         parqueoFilialRepository.flush();
     }
 
+    @Transactional(readOnly = true)
+    public List<Parqueo> listarDisponiblesVisita() {
+        List<Parqueo> disponibles = new ArrayList<>();
+        for (Parqueo parqueo : parqueoRepository.findByActivoTrueAndTipoParqueoNombreOrderByCodigoAsc("Visita")) {
+            preparar(parqueo);
+            if (!parqueo.isBloqueado()) {
+                disponibles.add(parqueo);
+            }
+        }
+        return disponibles;
+    }
+
+    @Transactional(readOnly = true)
+    public Parqueo getDisponibleVisita(Integer idParqueo) {
+        if (idParqueo == null) {
+            throw new IllegalArgumentException("error.visitaParqueo");
+        }
+        var parqueo = get(idParqueo);
+        if (!parqueo.isActivo()) {
+            throw new IllegalArgumentException("error.visitaParqueo");
+        }
+        if (!"Visita".equals(parqueo.getTipoParqueo().getNombre())) {
+            throw new IllegalArgumentException("error.visitaParqueo");
+        }
+        if (parqueo.isBloqueado()) {
+            throw new IllegalStateException("error.visitaParqueoOcupado");
+        }
+        return parqueo;
+    }
+
     @Transactional
     public void delete(Integer idParqueo) {
         if (!parqueoRepository.existsById(idParqueo)) {

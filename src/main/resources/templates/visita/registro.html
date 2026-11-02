@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('visita.titulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('visitas')}"></aside>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('visita.titulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <section class="panel mb-4" th:if="${visitaRegistrada != null}">
+                    <h2 th:text="#{visita.confirmacion}"></h2>
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4" th:text="#{persona.nombre}"></dt>
+                        <dd class="col-sm-8" th:text="${visitaRegistrada.visitante.persona.nombreCompleto}"></dd>
+                        <dt class="col-sm-4" th:text="#{filial.unidad}"></dt>
+                        <dd class="col-sm-8" th:text="${visitaRegistrada.filial.numero}"></dd>
+                        <dt class="col-sm-4" th:text="#{visita.fechaIngreso}"></dt>
+                        <dd class="col-sm-8" th:text="${#temporals.format(visitaRegistrada.fechaIngreso, 'dd/MM/yyyy HH:mm:ss')}"></dd>
+                        <dt class="col-sm-4" th:text="#{visita.guarda}"></dt>
+                        <dd class="col-sm-8" th:text="${visitaRegistrada.empleadoPuesto.empleado.persona.nombreCompleto}"></dd>
+                    </dl>
+                </section>
+                <div class="encabezado">
+                    <p th:text="#{visita.descripcion}"></p>
+                </div>
+                <form class="buscador mb-4" method="get" th:action="@{/visita/registro}">
+                    <label class="visually-hidden" for="buscarCedula" th:text="#{visita.buscar}"></label>
+                    <input class="form-control"
+                           type="search"
+                           id="buscarCedula"
+                           name="cedula"
+                           maxlength="30"
+                           th:value="${cedulaBusqueda}"
+                           th:placeholder="#{visita.buscar}">
+                    <button class="btn btn-outline-primary" th:text="#{accion.buscar}"></button>
+                </form>
+                <div class="row g-4">
+                    <div class="col-xl-9">
+                        <form th:action="@{/visita/guardar}" method="post" th:object="${persona}">
+                            <section class="panel mb-4">
+                                <h2 th:text="#{visita.datosVisitante}"></h2>
+                                <div class="alert alert-success" th:if="${personaExistente}" role="status">
+                                    <span th:text="#{visita.personaEncontrada}"></span>
+                                    <strong th:text="*{nombreCompleto}"></strong>
+                                </div>
+                                <div class="alert alert-warning" th:if="${visitanteDentro}" role="alert" th:text="#{error.visitanteDentro}"></div>
+                                <p class="ayuda" th:if="${personaExistente}" th:text="#{visita.identidadAyuda}"></p>
+                                <p class="ayuda" th:unless="${personaExistente}" th:text="#{visita.personaNueva}"></p>
+                                <div class="row g-3">
+                                    <div class="col-md-5">
+                                        <label class="form-label" for="cedula" th:text="#{persona.cedula}+' *'"></label>
+                                        <input class="form-control"
+                                               th:field="*{cedula}"
+                                               th:errorclass="is-invalid"
+                                               th:readonly="${personaExistente}"
+                                               maxlength="30"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{cedula}"></div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <label class="form-label" for="nombreCompleto" th:text="#{persona.nombre}+' *'"></label>
+                                        <input class="form-control"
+                                               th:field="*{nombreCompleto}"
+                                               th:errorclass="is-invalid"
+                                               th:readonly="${personaExistente}"
+                                               maxlength="150"
+                                               required>
+                                        <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
+                                    </div>
+                                    <div class="col-md-7 align-self-end">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   id="llegaEnVehiculo"
+                                                   name="llegaEnVehiculo"
+                                                   value="true"
+                                                   th:checked="${llegaEnVehiculo}">
+                                            <label class="form-check-label" for="llegaEnVehiculo" th:text="#{visita.llegaVehiculo}"></label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label" for="placa" th:text="#{visita.placa}"></label>
+                                        <input class="form-control"
+                                               id="placa"
+                                               name="placa"
+                                               maxlength="20"
+                                               th:value="${placa}"
+                                               th:disabled="${!llegaEnVehiculo}"
+                                               th:required="${llegaEnVehiculo}">
+                                        <small class="ayuda" th:text="#{visita.placaAyuda}"></small>
+                                    </div>
+                                </div>
+                            </section>
+                            <section class="panel">
+                                <h2 th:text="#{visita.datosIngreso}"></h2>
+                                <p class="ayuda" th:text="#{form.obligatorios}"></p>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="idFilial" th:text="#{visita.filial}+' *'"></label>
+                                        <select class="form-select" id="idFilial" name="idFilial" required>
+                                            <option value="" th:text="#{form.seleccione}"></option>
+                                            <option th:each="filial:${filiales}"
+                                                    th:value="${filial.idFilial}"
+                                                    th:text="${filial.numero+' - '+filial.torre.nombre}"
+                                                    th:selected="${idFilialSeleccionada != null and filial.idFilial == idFilialSeleccionada}"></option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="idParqueo" th:text="#{visita.parqueo}"></label>
+                                        <select class="form-select"
+                                                id="idParqueo"
+                                                name="idParqueo"
+                                                th:disabled="${!llegaEnVehiculo}"
+                                                th:required="${llegaEnVehiculo}">
+                                            <option value="" th:text="#{form.seleccione}"></option>
+                                            <option th:each="parqueo:${parqueosDisponibles}"
+                                                    th:value="${parqueo.idParqueo}"
+                                                    th:text="${parqueo.codigo}+' - '+#{parqueo.disponible}"
+                                                    th:selected="${idParqueoSeleccionado != null and parqueo.idParqueo == idParqueoSeleccionado}"></option>
+                                        </select>
+                                        <small class="ayuda" th:text="#{visita.parqueoAyuda}"></small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="fechaIngreso" th:text="#{visita.fechaIngreso}"></label>
+                                        <input class="form-control"
+                                               id="fechaIngreso"
+                                               readonly
+                                               th:value="${#temporals.format(ahora, 'dd/MM/yyyy HH:mm')}+' - '+#{visita.automatico}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="idEmpleadoPuesto" th:text="#{visita.guarda}+' *'"></label>
+                                        <select class="form-select" id="idEmpleadoPuesto" name="idEmpleadoPuesto" required>
+                                            <option value="" th:text="#{form.seleccione}"></option>
+                                            <option th:each="asignacion:${guardas}"
+                                                    th:value="${asignacion.idEmpleadoPuesto}"
+                                                    th:text="${asignacion.empleado.persona.nombreCompleto+' - '+@messageSource.getMessage('catalogo.turno.'+asignacion.turno.idTurno,null,asignacion.turno.nombre,#locale)+' '+asignacion.turno.horaInicio+'-'+asignacion.turno.horaFin}"
+                                                    th:selected="${idGuardaSeleccionado != null and asignacion.idEmpleadoPuesto == idGuardaSeleccionado}"></option>
+                                        </select>
+                                        <small class="ayuda" th:text="#{visita.guardaAyuda}"></small>
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning mt-3" th:if="${#lists.isEmpty(guardas)}" role="alert" th:text="#{visita.sinGuardas}"></div>
+                                <div class="acciones mt-4">
+                                    <button class="btn btn-primary" th:disabled="${visitanteDentro or #lists.isEmpty(guardas)}">
+                                        <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                                        <span th:text="#{visita.registrar}"></span>
+                                    </button>
+                                    <a class="btn btn-outline-primary" th:href="@{/visita/registro}" th:text="#{accion.cancelar}"></a>
+                                </div>
+                            </section>
+                        </form>
+                    </div>
+                    <aside class="col-xl-3">
+                        <section class="panel">
+                            <h2 th:text="#{visita.parqueosTitulo}"></h2>
+                            <p class="ayuda" th:text="#{visita.disponibles}+': '+${#lists.size(parqueosDisponibles)}"></p>
+                            <div class="row g-2">
+                                <div class="col-6 col-sm-4 col-xl-6" th:each="parqueo:${parqueosDisponibles}">
+                                    <div class="parqueo-tarjeta disponible">
+                                        <strong th:text="${parqueo.codigo}"></strong>
+                                        <small th:text="#{parqueo.disponible}"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="ayuda" th:if="${#lists.isEmpty(parqueosDisponibles)}" th:text="#{visita.sinParqueos}"></p>
+                            <div class="alert alert-warning mt-4 mb-0" th:text="#{visita.avisoDentro}"></div>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>
