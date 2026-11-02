@@ -12,6 +12,8 @@ public interface ParqueoRepository extends JpaRepository<Parqueo, Integer> {
 
     List<Parqueo> findAllByOrderByCodigoAsc();
 
+    List<Parqueo> findByActivoTrueAndTipoParqueoNombreOrderByCodigoAsc(String nombreTipo);
+
     Optional<Parqueo> findByCodigoIgnoreCase(String codigo);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(*) FROM visita_parqueo INNER JOIN visita ON visita.id_visita=visita_parqueo.id_visita WHERE visita_parqueo.id_parqueo=:idParqueo AND visita.fecha_salida IS NULL")

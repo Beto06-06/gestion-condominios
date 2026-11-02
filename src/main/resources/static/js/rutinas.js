@@ -43,6 +43,21 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('liberarParqueoDescripcion').textContent = boton.getAttribute('data-bs-descripcion');
         });
     }
+    const llegaEnVehiculo = document.getElementById('llegaEnVehiculo');
+    if (llegaEnVehiculo) {
+        llegaEnVehiculo.addEventListener('change', function () {
+            const placa = document.getElementById('placa');
+            const parqueo = document.getElementById('idParqueo');
+            placa.disabled = !llegaEnVehiculo.checked;
+            parqueo.disabled = !llegaEnVehiculo.checked;
+            placa.required = llegaEnVehiculo.checked;
+            parqueo.required = llegaEnVehiculo.checked;
+            if (!llegaEnVehiculo.checked) {
+                placa.value = '';
+                parqueo.value = '';
+            }
+        });
+    }
     const reabrirFinalizacion = document.getElementById('reabrirFinalizacion');
     if (reabrirFinalizacion) {
         reabrirFinalizacion.click();

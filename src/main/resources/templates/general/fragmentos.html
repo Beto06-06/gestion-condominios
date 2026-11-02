@@ -48,19 +48,25 @@
                     <i class="fa-solid fa-square-parking" aria-hidden="true"></i>
                     <span th:text="#{parqueo.titulo}"></span>
                 </a>
+                <a th:href="@{/visita/registro}"
+                   th:classappend="${activa=='visitas'}?'active'"
+                   th:attr="aria-current=${activa=='visitas'?'page':null}">
+                    <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+                    <span th:text="#{visita.titulo}"></span>
+                </a>
             </nav>
         </aside>
         <header th:fragment="barra(titulo)" class="topbar">
             <h1 th:text="#{${titulo}}"></h1>
             <div class="idiomas" th:aria-label="#{idioma.titulo}">
                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda})}"
                    th:classappend="${#locale.language=='es'}?'elegido'"
                    lang="es"
                    aria-label="Español">
                     ES
                 </a>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda})}"
                    th:classappend="${#locale.language=='en'}?'elegido'"
                    lang="en"
                    aria-label="English">
