@@ -4,6 +4,9 @@ import com.incondo.domain.Persona;
 import com.incondo.service.*;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -55,6 +58,69 @@ public class VisitaController {
         model.addAttribute("persona", persona);
         cargar(model, cedula, false, "", null, null, null);
         return "visita/registro";
+    }
+
+    @GetMapping("/dentro")
+    public String dentro(Model model) {
+        var visitas = visitaService.listarDentro();
+        model.addAttribute("visitas", visitas);
+        model.addAttribute("totalDentro", visitas.size());
+        model.addAttribute("parqueosLibres", parqueoService.listarDisponiblesVisita().size());
+        model.addAttribute("ingresosHoy", visitaService.contarIngresosHoy());
+        model.addAttribute("rutaIdioma", "/visita/dentro");
+        return "visita/dentro";
+    }
+
+    @PostMapping("/salida")
+    public String salida(@RequestParam Integer idVisita, Locale locale, RedirectAttributes redirectAttributes) {
+        String titulo = "todoOk";
+        String clave = "mensaje.visitaSalida";
+        try {
+            visitaService.registrarSalida(idVisita);
+        } catch (IllegalArgumentException exception) {
+            titulo = "error";
+            clave = exception.getMessage();
+        } catch (IllegalStateException exception) {
+            titulo = "error";
+            clave = exception.getMessage();
+        } catch (Exception exception) {
+            titulo = "error";
+            clave = "error.operacion";
+        }
+        redirectAttributes.addFlashAttribute(titulo, mensaje(clave, locale));
+        return "redirect:/visita/dentro";
+    }
+
+    @GetMapping("/historial")
+    public String historial(@RequestParam(defaultValue = "") String desde,
+            @RequestParam(defaultValue = "") String hasta,
+            @RequestParam(required = false) Integer idFilial,
+            @RequestParam(defaultValue = "") String cedula, Model model, Locale locale) {
+        model.addAttribute("visitas", new ArrayList<>());
+        model.addAttribute("filiales", filialService.listar());
+        model.addAttribute("desde", desde);
+        model.addAttribute("hasta", hasta);
+        model.addAttribute("idFilialFiltro", idFilial);
+        model.addAttribute("cedulaBusqueda", cedula);
+        model.addAttribute("rutaIdioma", "/visita/historial");
+        String clave = null;
+        try {
+            var fechaDesde = desde.isBlank() ? null : LocalDate.parse(desde);
+            var fechaHasta = hasta.isBlank() ? null : LocalDate.parse(hasta);
+            model.addAttribute("visitas", visitaService.historial(fechaDesde, fechaHasta, idFilial, cedula));
+        } catch (DateTimeParseException exception) {
+            clave = "error.historialFechaInvalida";
+        } catch (IllegalArgumentException exception) {
+            clave = exception.getMessage();
+        } catch (IllegalStateException exception) {
+            clave = exception.getMessage();
+        } catch (Exception exception) {
+            clave = "error.operacion";
+        }
+        if (clave != null) {
+            model.addAttribute("error", mensaje(clave, locale));
+        }
+        return "visita/historial";
     }
 
     @PostMapping("/guardar")
