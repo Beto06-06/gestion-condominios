@@ -3,6 +3,8 @@ package com.incondo.service;
 import com.incondo.domain.*;
 import com.incondo.repository.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,63 @@ public class VisitaService {
     public boolean estaDentro(String cedula) {
         var resultado = visitanteRepository.findByPersonaCedula(PersonaService.cedulaNormalizada(cedula));
         return resultado.isPresent() && visitaRepository.existsByVisitanteIdVisitanteAndFechaSalidaIsNull(resultado.get().getIdVisitante());
+    }
+
+    private void prepararParqueos(List<Visita> visitas) {
+        for (Visita visita : visitas) {
+            var resultado = visitaParqueoRepository.findByVisitaIdVisita(visita.getIdVisita());
+            visita.setParqueoAsignado(resultado.isPresent() ? resultado.get().getParqueo() : null);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Visita> listarDentro() {
+        var visitas = visitaRepository.findByFechaSalidaIsNullOrderByFechaIngresoDescIdVisitaDesc();
+        prepararParqueos(visitas);
+        return visitas;
+    }
+
+    @Transactional(readOnly = true)
+    public long contarIngresosHoy() {
+        var hoy = LocalDate.now();
+        return visitaRepository.countByFechaIngresoBetween(hoy.atStartOfDay(), hoy.atTime(23, 59, 59));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Visita> historial(LocalDate desde, LocalDate hasta, Integer idFilial, String cedula) {
+        if (desde != null && hasta != null && desde.isAfter(hasta)) {
+            throw new IllegalArgumentException("error.historialFechas");
+        }
+        if (idFilial != null) {
+            filialService.get(idFilial);
+        }
+        String cedulaNormalizada = PersonaService.cedulaNormalizada(cedula);
+        if (!PersonaService.texto(cedula).isEmpty() && cedulaNormalizada.isEmpty()) {
+            throw new IllegalArgumentException("error.campos");
+        }
+        var visitas = visitaRepository.consultarHistorial(desde == null ? null : desde.atStartOfDay(),
+                hasta == null ? null : hasta.atTime(23, 59, 59), idFilial, cedulaNormalizada);
+        prepararParqueos(visitas);
+        return visitas;
+    }
+
+    @Transactional
+    public void registrarSalida(Integer idVisita) {
+        var resultado = visitaRepository.findById(idVisita);
+        if (!resultado.isPresent()) {
+            throw new IllegalArgumentException("error.noExiste");
+        }
+        var visita = resultado.get();
+        if (visita.getFechaSalida() != null) {
+            throw new IllegalStateException("error.visitaSalidaRegistrada");
+        }
+        var salida = LocalDateTime.now().withNano(0);
+        if (salida.isBefore(visita.getFechaIngreso())) {
+            throw new IllegalStateException("error.visitaSalidaAnterior");
+        }
+        visita.setFechaSalida(salida);
+        visitaRepository.save(visita);
+        visitaRepository.flush();
     }
 
     private Persona obtenerPersona(Persona formulario) {

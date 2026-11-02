@@ -309,3 +309,22 @@ INSERT INTO empleado(id_persona,activo) VALUES (5,TRUE),(6,FALSE),(7,TRUE),(8,TR
 
 INSERT INTO empleado_puesto(id_empleado,id_puesto,id_turno) VALUES
  (1,1,1),(2,1,2),(3,1,3),(4,1,1);
+
+INSERT INTO parqueo(codigo,id_tipo_parqueo,activo) VALUES
+ ('R-01',1,TRUE),
+ ('R-02',1,TRUE),
+ ('R-03',1,TRUE),
+ ('R-04',1,TRUE),
+ ('V-01',2,TRUE),
+ ('V-02',2,TRUE),
+ ('V-03',2,TRUE),
+ ('V-04',2,TRUE),
+ ('V-05',2,TRUE),
+ ('V-06',2,TRUE);
+
+INSERT INTO area_comun(nombre,descripcion,capacidad,hora_apertura,hora_cierre,activo) VALUES
+ ('Rancho BBQ','Parrilla, mesas y fregadero techado.',20,'10:00','22:00',TRUE),
+ ('Salon de eventos','Salon climatizado con cocina y sonido.',60,'08:00','23:00',TRUE),
+ ('Piscina','Piscina semiolimpica con area de descanso.',25,'07:00','20:00',FALSE),
+ ('Cancha multiuso','Futbol 5, baloncesto y voleibol.',14,'06:00','21:00',TRUE),
+ ('Gimnasio','Maquinas de cardio y pesas.',10,'05:00','22:00',TRUE);

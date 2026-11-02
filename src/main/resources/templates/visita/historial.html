@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" th:lang="${#locale.language}" xmlns:th="http://www.thymeleaf.org">
+    <head th:replace="~{general/fragmentos :: head('visita.historialTitulo')}"></head>
+    <body>
+        <a class="visually-hidden-focusable skip" href="#contenido" th:text="#{nav.saltar}"></a>
+        <aside th:replace="~{general/fragmentos :: menu('historial')}"></aside>
+        <main class="main">
+            <header th:replace="~{general/fragmentos :: barra('visita.historialTitulo')}"></header>
+            <div class="contenido" id="contenido">
+                <section th:replace="~{general/fragmentos :: mensajes}"></section>
+                <div class="encabezado">
+                    <p th:text="#{visita.historialDescripcion}"></p>
+                </div>
+                <form class="panel mb-4" method="get" th:action="@{/visita/historial}">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3 col-xl-2">
+                            <label class="form-label" for="desde" th:text="#{filtro.desde}"></label>
+                            <input class="form-control" type="date" id="desde" name="desde" th:value="${desde}">
+                        </div>
+                        <div class="col-md-3 col-xl-2">
+                            <label class="form-label" for="hasta" th:text="#{filtro.hasta}"></label>
+                            <input class="form-control" type="date" id="hasta" name="hasta" th:value="${hasta}">
+                        </div>
+                        <div class="col-md-3 col-xl-2">
+                            <label class="form-label" for="idFilial" th:text="#{filial.unidad}"></label>
+                            <select class="form-select" id="idFilial" name="idFilial">
+                                <option value="" th:text="#{filtro.todas}"></option>
+                                <option th:each="filial:${filiales}"
+                                        th:value="${filial.idFilial}"
+                                        th:text="${filial.numero}"
+                                        th:selected="${idFilialFiltro != null and filial.idFilial == idFilialFiltro}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-xl-3">
+                            <label class="form-label" for="cedulaFiltro" th:text="#{persona.cedula}"></label>
+                            <input class="form-control"
+                                   id="cedulaFiltro"
+                                   name="cedula"
+                                   maxlength="30"
+                                   th:value="${cedulaBusqueda}">
+                        </div>
+                        <div class="col-xl-3 acciones">
+                            <button class="btn btn-primary" th:text="#{filtro.filtrar}"></button>
+                            <a class="btn btn-outline-primary"
+                               th:href="@{/visita/historial}"
+                               th:text="#{filtro.limpiar}"></a>
+                        </div>
+                    </div>
+                    <small class="ayuda d-block mt-2" th:text="#{visita.filtrosAyuda}"></small>
+                </form>
+                <div class="tabla">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th th:text="#{visita.visitante}"></th>
+                                <th th:text="#{filial.unidad}"></th>
+                                <th th:text="#{visita.fechaIngreso}"></th>
+                                <th th:text="#{visita.fechaSalida}"></th>
+                                <th th:text="#{visita.vehiculoParqueo}"></th>
+                                <th th:text="#{visita.guarda}"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="visita:${visitas}">
+                                <td>
+                                    <strong class="d-block" th:text="${visita.visitante.persona.nombreCompleto}"></strong>
+                                    <small th:text="${visita.visitante.persona.cedula}"></small>
+                                </td>
+                                <td th:text="${visita.filial.numero}"></td>
+                                <td th:text="${#temporals.format(visita.fechaIngreso, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                                <td>
+                                    <span th:if="${visita.fechaSalida != null}"
+                                          th:text="${#temporals.format(visita.fechaSalida, 'dd/MM/yyyy HH:mm:ss')}"></span>
+                                    <span class="badge text-bg-info"
+                                          th:if="${visita.fechaSalida == null}"
+                                          th:text="#{visita.estadoDentro}"></span>
+                                </td>
+                                <td>
+                                    <span th:if="${visita.vehiculo != null}" th:text="${visita.vehiculo.placa}"></span>
+                                    <span th:if="${visita.parqueoAsignado != null}"
+                                          th:text="' - '+${visita.parqueoAsignado.codigo}"></span>
+                                    <span th:if="${visita.vehiculo == null}" th:text="#{visita.aPie}"></span>
+                                </td>
+                                <td th:text="${visita.empleadoPuesto.empleado.persona.nombreCompleto}"></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(visitas)}">
+                                <td colspan="6" class="ayuda" th:text="#{visita.sinHistorial}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="ayuda mt-3" th:text="#{visita.totalRegistros}+': '+${#lists.size(visitas)}"></p>
+            </div>
+        </main>
+    </body>
+</html>

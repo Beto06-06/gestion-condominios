@@ -54,19 +54,37 @@
                     <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
                     <span th:text="#{visita.titulo}"></span>
                 </a>
+                <a th:href="@{/visita/dentro}"
+                   th:classappend="${activa=='dentro'}?'active'"
+                   th:attr="aria-current=${activa=='dentro'?'page':null}">
+                    <i class="fa-solid fa-door-open" aria-hidden="true"></i>
+                    <span th:text="#{visita.dentroTitulo}"></span>
+                </a>
+                <a th:href="@{/visita/historial}"
+                   th:classappend="${activa=='historial'}?'active'"
+                   th:attr="aria-current=${activa=='historial'?'page':null}">
+                    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+                    <span th:text="#{visita.historialTitulo}"></span>
+                </a>
+                <a th:href="@{/area/listado}"
+                   th:classappend="${activa=='areas'}?'active'"
+                   th:attr="aria-current=${activa=='areas'?'page':null}">
+                    <i class="fa-solid fa-tree" aria-hidden="true"></i>
+                    <span th:text="#{area.titulo}"></span>
+                </a>
             </nav>
         </aside>
         <header th:fragment="barra(titulo)" class="topbar">
             <h1 th:text="#{${titulo}}"></h1>
             <div class="idiomas" th:aria-label="#{idioma.titulo}">
                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=es,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda},desde=${desde},hasta=${hasta},idFilial=${idFilialFiltro},soloActivas=${soloActivas})}"
                    th:classappend="${#locale.language=='es'}?'elegido'"
                    lang="es"
                    aria-label="Español">
                     ES
                 </a>
-                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda})}"
+                <a th:href="@{${rutaIdioma != null ? rutaIdioma : ''}(lang=en,q=${q},ver=${ver},puesto=${filtroPuesto},editar=${editar},finalizar=${finalizar},cedula=${cedulaBusqueda},desde=${desde},hasta=${hasta},idFilial=${idFilialFiltro},soloActivas=${soloActivas})}"
                    th:classappend="${#locale.language=='en'}?'elegido'"
                    lang="en"
                    aria-label="English">
@@ -107,6 +125,10 @@
                                        name="filtroPuesto"
                                        th:if="${nombreId == 'idEmpleado'}"
                                        th:value="${filtroPuesto}">
+                                <input type="hidden"
+                                       name="soloActivas"
+                                       th:if="${nombreId == 'idAreaComun'}"
+                                       th:value="${soloActivas}">
                                 <p>
                                     <span th:text="#{${mensajeConfirmacion}}"></span>
                                     <strong id="modalDescripcion"></strong>

@@ -40,4 +40,7 @@ public class Visita implements Serializable {
 
     @Column(name = "fecha_salida")
     private LocalDateTime fechaSalida;
+
+    @Transient
+    private Parqueo parqueoAsignado;
 }
